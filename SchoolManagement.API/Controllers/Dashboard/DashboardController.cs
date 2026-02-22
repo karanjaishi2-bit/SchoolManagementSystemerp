@@ -97,6 +97,8 @@ namespace SchoolManagement.API.Controllers.Dashboard
         }
 
         // GET: api/dashboard/student-report
+
+        // GET: api/dashboard/student-report
         [HttpGet("student-report")]
         public async Task<ActionResult> GetStudentReport()
         {
@@ -109,19 +111,19 @@ namespace SchoolManagement.API.Controllers.Dashboard
                 var byClass = await _context.Students
                     .GroupBy(s => s.Class)
                     .Select(g => new { Class = g.Key, Count = g.Count() })
-                    .ToDictionaryAsync(x => x.Class, x => x.Count);
+                    .ToDictionaryAsync(x => x.Class ?? "Unknown", x => x.Count);
 
                 var bySection = await _context.Students
                     .Where(s => !string.IsNullOrEmpty(s.Section))
                     .GroupBy(s => s.Section)
                     .Select(g => new { Section = g.Key, Count = g.Count() })
-                    .ToDictionaryAsync(x => x.Section, x => x.Count);
+                    .ToDictionaryAsync(x => x.Section ?? "Unknown", x => x.Count);
 
                 var byGender = await _context.Students
                     .Where(s => !string.IsNullOrEmpty(s.Gender))
                     .GroupBy(s => s.Gender)
                     .Select(g => new { Gender = g.Key, Count = g.Count() })
-                    .ToDictionaryAsync(x => x.Gender, x => x.Count);
+                    .ToDictionaryAsync(x => x.Gender ?? "Unknown", x => x.Count);
 
                 var report = new
                 {
@@ -140,7 +142,6 @@ namespace SchoolManagement.API.Controllers.Dashboard
                 return StatusCode(500, new { success = false, error = ex.Message });
             }
         }
-
         // GET: api/dashboard/attendance-report
         [HttpGet("attendance-report")]
         public async Task<ActionResult> GetAttendanceReport([FromQuery] string? date = null)
@@ -188,9 +189,9 @@ namespace SchoolManagement.API.Controllers.Dashboard
 
                 var byClass = await _context.Fees
                     .Where(f => !string.IsNullOrEmpty(f.ClassId))
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   .GroupBy(f => f.ClassId)
+                    .GroupBy(f => f.ClassId)
                     .Select(g => new { ClassId = g.Key, Amount = g.Sum(x => x.Amount) })
-                    .ToDictionaryAsync(x => x.ClassId, x => (int)x.Amount);
+                    .ToDictionaryAsync(x => x.ClassId ?? "Unknown", x => (int)x.Amount);
 
                 var report = new
                 {

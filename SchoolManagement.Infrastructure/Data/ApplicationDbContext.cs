@@ -197,7 +197,15 @@ namespace SchoolManagement.Infrastructure.Data
                 entity.Property(e => e.ClassName).HasMaxLength(100);
                 entity.HasIndex(e => e.Code).IsUnique();
             });
-
+            // Payroll Configuration
+            modelBuilder.Entity<Payroll>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.BasicSalary).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Allowances).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Deductions).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.NetSalary).HasColumnType("decimal(18,2)");
+            });
             // User Configuration
             modelBuilder.Entity<User>(entity =>
             {
