@@ -1,0 +1,37 @@
+﻿@model IEnumerable<SchoolManagement.Models.Enrollment>
+
+<h2>Enrollments</h2>
+
+<a asp-action="Create" class="btn btn-success mb-3">Enroll Student</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Course</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Student?.Name</td>
+                <td>@item.Course?.Name</td>
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-info btn-sm">
+                        Details
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@item.Id"
+                       class="btn btn-danger btn-sm">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

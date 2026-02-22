@@ -1,0 +1,34 @@
+﻿@model SchoolManagement.Models.BillingMaster
+
+<h2>Delete Billing</h2>
+
+<div class="mb-3">
+    <strong>Student:</strong> @Model.Student?.Name <br />
+    <strong>Bill Date:</strong> @Model.BillDate.ToString("yyyy-MM-dd")
+</div>
+
+<h4>Billing Items</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Fee</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.BillingItems)
+        {
+            <tr>
+                <td>@item.Course?.Name</td>
+                <td>@item.Amount</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

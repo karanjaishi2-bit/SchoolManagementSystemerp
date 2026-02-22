@@ -1,0 +1,33 @@
+﻿@model IEnumerable<SchoolManagement.Models.BillingMaster>
+
+<h2>Billing</h2>
+
+<a asp-action="Create" class="btn btn-success mb-3">Add Billing</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Bill ID</th>
+            <th>Student</th>
+            <th>Bill Date</th>
+            <th>Total Amount</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bill in Model)
+        {
+            <tr>
+                <td>@bill.Id</td>
+                <td>@bill.Student?.Name</td>
+                <td>@bill.BillDate.ToShortDateString()</td>
+                <td>@(bill.BillingItems.Sum(bi => bi.Amount))</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@bill.Id" class="btn btn-primary btn-sm">Details</a>
+                    <a asp-action="Print" asp-route-id="@bill.Id" class="btn btn-info btn-sm">Print</a>
+                    <a asp-action="Delete" asp-route-id="@bill.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

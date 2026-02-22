@@ -1,0 +1,34 @@
+﻿@model SchoolManagement.Models.Enrollment
+
+<h2>Edit Enrollment</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="StudentId"></label>
+        <select asp-for="StudentId" class="form-control" asp-items="ViewBag.StudentList">
+            <option value="">-- Select Student --</option>
+        </select>
+        <span asp-validation-for="StudentId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CourseId"></label>
+        <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseList">
+            <option value="">-- Select Course --</option>
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

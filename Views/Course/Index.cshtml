@@ -1,0 +1,49 @@
+﻿@model IEnumerable<SchoolManagement.Models.Course>
+
+<h2>Courses</h2>
+
+<a asp-action="Create" class="btn btn-success mb-3">Add Course</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Fee</th>
+            <th>Teacher</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <td>@course.Name</td>
+                <td>@course.Fee.ToString("C")</td> <!-- Formats fee as currency -->
+                <td>@(course.Teacher != null ? course.Teacher.Name : "Not Assigned")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-info btn-sm">
+                        Details
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+
+                    @* Disable Delete if course has enrollments or billing items *@
+                    @if ((course.Enrollments != null && course.Enrollments.Any()) ||
+                                    (course.BillingItems != null && course.BillingItems.Any()))
+                    {
+                        <button class="btn btn-danger btn-sm" disabled title="Cannot delete. Course has enrollments or billing items.">
+                            Delete
+                        </button>
+                    }
+                    else
+                    {
+                        <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,17 @@
+﻿@model SchoolManagement.Models.Enrollment
+
+<h2>Delete Enrollment</h2>
+
+<p>Are you sure you want to delete this enrollment?</p>
+
+<div>
+    <strong>Student:</strong> @Model.Student?.Name <br />
+    <strong>Course:</strong> @Model.Course?.Name
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

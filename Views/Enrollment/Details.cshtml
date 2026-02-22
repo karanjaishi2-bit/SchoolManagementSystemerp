@@ -1,0 +1,8 @@
+﻿@model SchoolManagement.Models.Enrollment
+
+<h2>Enrollment Details</h2>
+
+<p><strong>Student:</strong> @Model.Student?.Name</p>
+<p><strong>Course:</strong> @Model.Course?.Name</p>
+
+<a asp-action="Index" class="btn btn-secondary">Back</a>

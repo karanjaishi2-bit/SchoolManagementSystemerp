@@ -1,0 +1,17 @@
+﻿@media print {
+    .no-print {
+        display: none;
+    }
+}
+
+body {
+    margin: 20px;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+table {
+    margin-top: 20px;
+}

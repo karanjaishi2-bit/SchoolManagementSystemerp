@@ -1,0 +1,30 @@
+﻿@model SchoolManagement.Models.BillingMaster
+
+<h2>Billing Details</h2>
+
+<div>
+    <strong>Student:</strong> @Model.Student?.Name <br />
+    <strong>Bill Date:</strong> @Model.BillDate.ToString("yyyy-MM-dd")
+</div>
+
+<h4>Billing Items</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Fee</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.BillingItems)
+        {
+            <tr>
+                <td>@item.Course?.Name</td>
+                <td>@item.Amount</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back</a>
+<a asp-action="Print" asp-route-id="@Model.Id" class="btn btn-success">Print</a>

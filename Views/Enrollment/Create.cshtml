@@ -1,0 +1,32 @@
+﻿@model SchoolManagement.Models.Enrollment
+
+<h2>Enroll Student</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-2">
+        <label asp-for="StudentId">Student</label>
+        <select asp-for="StudentId"
+                asp-items="ViewBag.Students"
+                class="form-control">
+            <option value="">-- Select Student --</option>
+        </select>
+        <span asp-validation-for="StudentId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="CourseId">Course</label>
+        <select asp-for="CourseId"
+                asp-items="ViewBag.Courses"
+                class="form-control">
+            <option value="">-- Select Course --</option>
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enroll</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

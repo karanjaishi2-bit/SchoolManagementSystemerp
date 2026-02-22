@@ -1,0 +1,55 @@
+﻿@model SchoolManagement.ViewModels.BillingViewModel
+
+<h2>Edit Billing</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group mb-3">
+        <label>Select Student</label>
+        <select asp-for="StudentId" asp-items="Model.Students" class="form-control">
+            <option value="">-- Select Student --</option>
+        </select>
+        <span asp-validation-for="StudentId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Billing Type</label>
+        <select asp-for="BillingType" asp-items="Model.BillingTypes" class="form-control">
+            <option value="">-- Select Billing Type --</option>
+        </select>
+        <span asp-validation-for="BillingType" class="text-danger"></span>
+    </div>
+
+    <h4>Select Courses</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Course</th>
+                <th>Fee</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Courses.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="SelectedCourseIds" value="@Model.Courses[i].Id"
+                               @(Model.SelectedCourseIds.Contains(Model.Courses[i].Id) ? "checked" : "") />
+                    </td>
+                    <td>@Model.Courses[i].Name</td>
+                    <td>@Model.Courses[i].Fee</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

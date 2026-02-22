@@ -1,0 +1,38 @@
+﻿@model SchoolManagement.Models.BillingMaster
+
+<h2>Billing Details</h2>
+
+<div>
+    <strong>Student:</strong> @Model.Student?.Name <br />
+    <strong>Bill Date:</strong> @Model.BillDate.ToString("dd MMM yyyy")
+</div>
+
+<h4>Courses</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Fee</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.BillingItems)
+        {
+            <tr>
+                <td>@item.Course?.Name</td>
+                <td>@item.Amount.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Total</th>
+            <th>
+                @Model.BillingItems.Sum(bi => bi.Amount).ToString("C")
+            </th>
+        </tr>
+    </tfoot>
+</table>
+
+<button class="btn btn-primary" onclick="window.print()">Print Bill</button>
+<a asp-action="Index" class="btn btn-secondary">Back</a>
