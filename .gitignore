@@ -4,14 +4,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-*.cache
 
-# Build results
+# Build folders
 bin/
 obj/
-
-# Rider IDE
-.idea/
-
-# Node modules (if any)
-node_modules/
