@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolManagement.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SchoolManagement.Infrastructure.Data;
 namespace SchoolManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260222095732_PendingChanges")]
+    partial class PendingChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -838,7 +841,7 @@ namespace SchoolManagement.Infrastructure.Migrations
 
                     b.Property<string>("Photo")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(MAX)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("RollNo")
                         .HasColumnType("int");

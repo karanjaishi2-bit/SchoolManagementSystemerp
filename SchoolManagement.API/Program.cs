@@ -44,6 +44,7 @@ builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IResultRepository, ResultRepository>();
 builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IFeeRepository, FeeRepository>();
@@ -56,7 +57,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+        policy.WithOrigins("http://localhost:5272", "http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -101,13 +102,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowReactApp");
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

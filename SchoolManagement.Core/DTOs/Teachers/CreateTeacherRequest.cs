@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace SchoolManagement.Core.DTOs.Teachers
 {
     public class CreateTeacherRequest
@@ -10,6 +12,7 @@ namespace SchoolManagement.Core.DTOs.Teachers
         public string Subject { get; set; } = string.Empty;
         public string Status { get; set; } = "Active";
         public string Gender { get; set; } = string.Empty;
-        public string? Photo { get; set; }
+        [Column(TypeName = "nvarchar(MAX)")]
+public string? Photo { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace SchoolManagement.Core.DTOs.Staff
 {
     public class CreateStaffRequest
@@ -10,7 +12,8 @@ namespace SchoolManagement.Core.DTOs.Staff
         public string Role { get; set; } = string.Empty;
         public string Department { get; set; } = string.Empty;
         public string? Gender { get; set; }
-        public string? Photo { get; set; }
+        [Column(TypeName = "nvarchar(MAX)")]
+public string? Photo { get; set; }
         public string Status { get; set; } = "Active";
     }
 }

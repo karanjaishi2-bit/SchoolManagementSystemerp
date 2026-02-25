@@ -1,5 +1,6 @@
 using SchoolManagement.Core.Entities.Fees;
 using SchoolManagement.Core.Entities.Results;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SchoolManagement.Core.Entities.Students
 {
@@ -16,7 +17,8 @@ namespace SchoolManagement.Core.Entities.Students
         public string? Section { get; set; }
         // ✅ Add this line
         public string Gender { get; set; } = "Other";
-        public string? Photo { get; set; }  // ADD THIS
+        [Column(TypeName = "nvarchar(MAX)")]
+public string? Photo { get; set; }
 
         // Navigation Properties
         public ICollection<Grade>? Grades { get; set; }

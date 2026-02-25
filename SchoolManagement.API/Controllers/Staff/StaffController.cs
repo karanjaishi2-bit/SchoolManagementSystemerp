@@ -62,7 +62,7 @@ namespace SchoolManagement.API.Controllers.Staff
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, error = ex.Message });
+                return StatusCode(500, new { success = false, error = ex.Message, inner = ex.InnerException?.Message });
             }
         }
 

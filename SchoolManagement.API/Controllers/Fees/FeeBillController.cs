@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SchoolManagement.Core.DTOs.Fees;
 using SchoolManagement.Core.Entities.Fees;
 using SchoolManagement.Core.Interfaces;
+using SchoolManagement.Infrastructure.Data;
 
 namespace SchoolManagement.API.Controllers.Fees
 {
@@ -11,13 +13,16 @@ namespace SchoolManagement.API.Controllers.Fees
     {
         private readonly IFeeBillRepository _feeBillRepository;
         private readonly IFeeRepository _feeRepository;
+        private readonly ApplicationDbContext _context;
 
         public FeeBillController(
             IFeeBillRepository feeBillRepository,
-            IFeeRepository feeRepository)
+            IFeeRepository feeRepository,
+            ApplicationDbContext context)
         {
             _feeBillRepository = feeBillRepository;
             _feeRepository = feeRepository;
+            _context = context;
         }
 
         // GET: api/feebill
@@ -77,11 +82,12 @@ namespace SchoolManagement.API.Controllers.Fees
         {
             try
             {
-                var feeBill = await _feeBillRepository.GetByIdAsync(id);
+                var feeBill = await _context.FeeBills
+                    .Include(f => f.FeeItems)
+                    .FirstOrDefaultAsync(f => f.Id == id);
+
                 if (feeBill == null)
-                {
                     return NotFound(new { success = false, error = "Fee bill not found" });
-                }
 
                 return Ok(new { success = true, data = feeBill });
             }
@@ -138,53 +144,54 @@ namespace SchoolManagement.API.Controllers.Fees
 
         // POST: api/feebill
         [HttpPost]
-        public async Task<ActionResult> CreateFee([FromBody] CreateFeeRequest request)
+        public async Task<ActionResult> CreateFeeBill([FromBody] CreateFeeBillRequest request)
         {
             try
             {
-                var fee = new Fee
+                var feeBill = new FeeBill
                 {
-                    StudentName = request.StudentName,
-                    StudentId = request.StudentId,
-                    Amount = request.Amount,
-                    DueDate = request.DueDate,
-                    Status = request.Status,
-                    CreatedAt = DateTime.UtcNow,
-                    IsActive = true
+                    StudentId     = request.StudentId,
+                    StudentName   = request.StudentName,
+                    ClassId       = request.ClassId ?? string.Empty,
+                    ClassName     = request.ClassName ?? string.Empty,
+                    BillDate      = request.BillDate ?? DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                    DueDate       = request.DueDate,
+                    TotalAmount   = request.TotalAmount,
+                    PaidAmount    = request.PaidAmount,
+                    BalanceAmount = request.BalanceAmount,
+                    Status        = request.Status ?? "Pending",
+                    CreatedAt     = DateTime.UtcNow,
+                    IsActive      = true
                 };
 
-                var createdFee = await _feeRepository.AddAsync(fee);
+                var created = await _feeBillRepository.AddAsync(feeBill);
 
-                return Ok(new { success = true, data = createdFee, message = "Fee record created successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = ex.Message });
-            }
-        }
-
-        // PUT: api/feebill/fees/5
-        [HttpPut("fees/{id}")]
-        public async Task<IActionResult> UpdateFee(int id, [FromBody] CreateFeeRequest request)
-        {
-            try
-            {
-                var fee = await _feeRepository.GetByIdAsync(id);
-                if (fee == null)
+                // Save FeeItems linked to this FeeBill
+                if (request.FeeItems != null && request.FeeItems.Any())
                 {
-                    return NotFound(new { success = false, error = "Fee record not found" });
+                    foreach (var item in request.FeeItems)
+                    {
+                        _context.FeeItems.Add(new FeeItem
+                        {
+                            FeeHead     = item.FeeHead,
+                            Amount      = item.Amount,
+                            FeeType     = item.FeeType,
+                            Frequency   = item.Frequency,
+                            Description = item.Description,
+                            FeeBillId   = created.Id,
+                            CreatedAt   = DateTime.UtcNow,
+                            IsActive    = true
+                        });
+                    }
+                    await _context.SaveChangesAsync();
                 }
 
-                fee.StudentName = request.StudentName;
-                fee.StudentId = request.StudentId;
-                fee.Amount = request.Amount;
-                fee.DueDate = request.DueDate;
-                fee.Status = request.Status;
-                fee.UpdatedAt = DateTime.UtcNow;
+                // Return the bill with its items
+                var result = await _context.FeeBills
+                    .Include(f => f.FeeItems)
+                    .FirstOrDefaultAsync(f => f.Id == created.Id);
 
-                await _feeRepository.UpdateAsync(fee);
-
-                return Ok(new { success = true, data = fee, message = "Fee updated successfully" });
+                return Ok(new { success = true, data = result, message = "Fee bill created successfully" });
             }
             catch (Exception ex)
             {
@@ -198,26 +205,56 @@ namespace SchoolManagement.API.Controllers.Fees
         {
             try
             {
-                var feeBill = await _feeBillRepository.GetByIdAsync(id);
+                var feeBill = await _context.FeeBills
+                    .Include(f => f.FeeItems)
+                    .FirstOrDefaultAsync(f => f.Id == id);
+
                 if (feeBill == null)
-                {
                     return NotFound(new { success = false, error = "Fee bill not found" });
+
+                feeBill.StudentId     = request.StudentId;
+                feeBill.StudentName   = request.StudentName;
+                feeBill.ClassId       = request.ClassId ?? feeBill.ClassId;
+                feeBill.ClassName     = request.ClassName ?? feeBill.ClassName;
+                feeBill.BillDate      = request.BillDate ?? feeBill.BillDate;
+                feeBill.DueDate       = request.DueDate;
+                feeBill.TotalAmount   = request.TotalAmount;
+                feeBill.PaidAmount    = request.PaidAmount;
+                feeBill.BalanceAmount = request.BalanceAmount;
+                feeBill.Status        = request.Status ?? feeBill.Status;
+                feeBill.UpdatedAt     = DateTime.UtcNow;
+
+                // Replace FeeItems if provided
+                if (request.FeeItems != null)
+                {
+                    // Remove old items
+                    var oldItems = _context.FeeItems.Where(i => i.FeeBillId == id);
+                    _context.FeeItems.RemoveRange(oldItems);
+
+                    // Add new items
+                    foreach (var item in request.FeeItems)
+                    {
+                        _context.FeeItems.Add(new FeeItem
+                        {
+                            FeeHead     = item.FeeHead,
+                            Amount      = item.Amount,
+                            FeeType     = item.FeeType,
+                            Frequency   = item.Frequency,
+                            Description = item.Description,
+                            FeeBillId   = id,
+                            CreatedAt   = DateTime.UtcNow,
+                            IsActive    = true
+                        });
+                    }
                 }
 
-                feeBill.StudentName = request.StudentName;
-                feeBill.ClassId = request.ClassId;
-                feeBill.ClassName = request.ClassName;
-                feeBill.BillDate = request.BillDate;
-                feeBill.DueDate = request.DueDate;
-                feeBill.TotalAmount = request.TotalAmount;
-                feeBill.PaidAmount = request.PaidAmount;
-                feeBill.BalanceAmount = request.BalanceAmount;
-                feeBill.Status = request.Status;
-                feeBill.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
 
-                await _feeBillRepository.UpdateAsync(feeBill);
+                var result = await _context.FeeBills
+                    .Include(f => f.FeeItems)
+                    .FirstOrDefaultAsync(f => f.Id == id);
 
-                return Ok(new { success = true, data = feeBill, message = "Fee bill updated successfully" });
+                return Ok(new { success = true, data = result, message = "Fee bill updated successfully" });
             }
             catch (Exception ex)
             {
@@ -233,21 +270,15 @@ namespace SchoolManagement.API.Controllers.Fees
             {
                 var feeBill = await _feeBillRepository.GetByIdAsync(id);
                 if (feeBill == null)
-                {
                     return NotFound(new { success = false, error = "Fee bill not found" });
-                }
 
-                feeBill.PaidAmount += request.Amount;
-                feeBill.BalanceAmount = feeBill.TotalAmount - feeBill.PaidAmount;
+                feeBill.PaidAmount    += request.Amount;
+                feeBill.BalanceAmount  = feeBill.TotalAmount - feeBill.PaidAmount;
 
                 if (feeBill.BalanceAmount <= 0)
-                {
                     feeBill.Status = "Paid";
-                }
                 else if (feeBill.PaidAmount > 0)
-                {
                     feeBill.Status = "Partial";
-                }
 
                 feeBill.UpdatedAt = DateTime.UtcNow;
 
@@ -269,9 +300,12 @@ namespace SchoolManagement.API.Controllers.Fees
             {
                 var feeBill = await _feeBillRepository.GetByIdAsync(id);
                 if (feeBill == null)
-                {
                     return NotFound(new { success = false, error = "Fee bill not found" });
-                }
+
+                // Delete associated FeeItems first
+                var items = _context.FeeItems.Where(i => i.FeeBillId == id);
+                _context.FeeItems.RemoveRange(items);
+                await _context.SaveChangesAsync();
 
                 await _feeBillRepository.DeleteAsync(id);
 
